@@ -12,17 +12,13 @@ public sealed record GraphShapeTests
 {
     private static readonly Guid Id = Guid.Parse("8f2a5c1e-3b7d-4e9a-a1c2-6d4b8e0f2a37");
 
-    private static readonly Guid VisualizationId = Guid.Parse(
-        "3f2a6c1e-8b4d-4e2a-9c1f-1a2b3c4d5e6f"
-    );
-
     [Theory]
     [MemberData(nameof(Samples))]
     public void NodesAreLabelledByRecordAndCarryTheQueryId(string name)
     {
         PureQLQuery query = QuerySamples.All[name];
 
-        QueryGraph graph = QueryGraphs.Of(query, Id, VisualizationId);
+        QueryGraph graph = QueryGraphs.Of(query, Id);
 
         WrittenNode root = graph.Nodes[0];
         Assert.Equal(
@@ -30,10 +26,6 @@ public sealed record GraphShapeTests
             root.Labels
         );
         Assert.Equal(Id.ToString("D"), root.Properties[GraphProperties.Id]);
-        Assert.Equal(
-            VisualizationId.ToString("D"),
-            root.Properties[GraphProperties.VisualizationId]
-        );
         for (int i = 0; i < graph.Nodes.Count; i++)
         {
             WrittenNode node = graph.Nodes[i];
@@ -49,9 +41,6 @@ public sealed record GraphShapeTests
             {
                 Assert.Equal(2, node.Labels.Count);
                 Assert.False(node.Properties.ContainsKey(GraphProperties.Id));
-                Assert.False(
-                    node.Properties.ContainsKey(GraphProperties.VisualizationId)
-                );
             }
         }
     }
@@ -60,7 +49,7 @@ public sealed record GraphShapeTests
     [MemberData(nameof(Samples))]
     public void RelationshipsFormATreeWithPositionsOnLists(string name)
     {
-        QueryGraph graph = QueryGraphs.Of(QuerySamples.All[name], Id, VisualizationId);
+        QueryGraph graph = QueryGraphs.Of(QuerySamples.All[name], Id);
 
         Assert.Equal(
             Enumerable.Range(1, graph.Nodes.Count - 1),
@@ -89,7 +78,7 @@ public sealed record GraphShapeTests
     [Fact]
     public void ListPropertiesArePositionedAndSingleOnesAreNot()
     {
-        QueryGraph graph = QueryGraphs.Of(Query(joins: null), Id, VisualizationId);
+        QueryGraph graph = QueryGraphs.Of(Query(joins: null), Id);
 
         Assert.Equal(
             [
@@ -122,8 +111,8 @@ public sealed record GraphShapeTests
     [Fact]
     public void AnEmptyOptionalListIsMarkedAndAnAbsentOneIsNot()
     {
-        QueryGraph empty = QueryGraphs.Of(Query(joins: []), Id, VisualizationId);
-        QueryGraph absent = QueryGraphs.Of(Query(joins: null), Id, VisualizationId);
+        QueryGraph empty = QueryGraphs.Of(Query(joins: []), Id);
+        QueryGraph absent = QueryGraphs.Of(Query(joins: null), Id);
 
         Assert.Equal(Array.Empty<string>(), empty.Nodes[0].Properties["joins"]);
         Assert.False(absent.Nodes[0].Properties.ContainsKey("joins"));
@@ -139,8 +128,8 @@ public sealed record GraphShapeTests
     [Fact]
     public void AScalarListIsAnArrayEvenWhenEmpty()
     {
-        QueryGraph some = QueryGraphs.Of(Query(null, ["a", "b"]), Id, VisualizationId);
-        QueryGraph none = QueryGraphs.Of(Query(null, []), Id, VisualizationId);
+        QueryGraph some = QueryGraphs.Of(Query(null, ["a", "b"]), Id);
+        QueryGraph none = QueryGraphs.Of(Query(null, []), Id);
 
         Assert.Equal(["a", "b"], (string[])some.Nodes[0].Properties["distinctBy"]);
         Assert.Equal(Array.Empty<string>(), none.Nodes[0].Properties["distinctBy"]);
@@ -159,7 +148,7 @@ public sealed record GraphShapeTests
                 new PaginationTake(new ParamInteger("pageSize"))
             )
         );
-        QueryGraph graph = builder.Graph(VisualizationId);
+        QueryGraph graph = builder.Graph();
 
         Assert.Equal(20L, graph.Nodes[0].Properties["skip"]);
         Assert.False(graph.Nodes[0].Properties.ContainsKey("take"));
@@ -187,7 +176,7 @@ public sealed record GraphShapeTests
                 new BooleanRow(new FieldBoolean("orders", "paid"))
             )
         );
-        QueryGraph graph = builder.Graph(VisualizationId);
+        QueryGraph graph = builder.Graph();
 
         Assert.Equal("Asc", graph.Nodes[0].Properties["direction"]);
         Assert.Equal("Left", graph.Nodes[2].Properties["kind"]);
@@ -261,11 +250,7 @@ public sealed record GraphShapeTests
         QueryGraph graph = Write(new LiteralIntegerNullable());
 
         Assert.Equal(
-            [
-                GraphProperties.QueryId,
-                GraphProperties.Id,
-                GraphProperties.VisualizationId,
-            ],
+            [GraphProperties.QueryId, GraphProperties.Id],
             graph.Nodes[0].Properties.Keys
         );
     }
@@ -315,7 +300,7 @@ public sealed record GraphShapeTests
     {
         GraphBuilder builder = new GraphBuilder(Id);
         _ = ModelRoundTripTests.Writer(record.GetType()).Invoke(null, [builder, record]);
-        return builder.Graph(VisualizationId);
+        return builder.Graph();
     }
 
     private static MainPlainQueryWithoutPagination Read(QueryGraph graph)

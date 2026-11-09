@@ -24,7 +24,7 @@ the model, so the library uses no reflection and is trim- and Native AOT-compati
 
 - **One node per model record.** Labels: the record's type name (`AddIntegerRow`) and
   `Node`; the root record also has `Query`. Every node has `queryId` (the query's id, a
-  "D" uuid string); the root also has `id` (the same value) and `visualizationId`.
+  "D" uuid string); the root also has `id` (the same value).
 - **One relationship per child.** Its type is the C# property that holds the child
   (`Where`, `Left`, `Values`, `Columns`, …). Each item of a list gets its own relationship
   with an integer `position` (0-based); a single child has none.
@@ -72,7 +72,7 @@ dotnet add package PureQL.CSharp.Model.Graph
 using PureQL.CSharp.Model;
 using PureQL.CSharp.Model.Graph;
 
-QueryGraph graph = QueryGraphs.Of(query, id: Guid.NewGuid(), visualizationId: dashboardId);
+QueryGraph graph = QueryGraphs.Of(query, id: Guid.NewGuid());
 
 foreach (WrittenNode node in graph.Nodes)
 {

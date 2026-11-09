@@ -147,7 +147,7 @@ public sealed record MalformedGraphTests
     {
         AssertRejected(
             "The PureQLQuery holds no value.",
-            () => QueryGraphs.Of(default, Id, Id)
+            () => QueryGraphs.Of(default, Id)
         );
         AssertRejected(
             "The FromEntity has no entity",
@@ -159,7 +159,6 @@ public sealed record MalformedGraphTests
                             []
                         )
                     ),
-                    Id,
                     Id
                 )
         );
@@ -252,7 +251,7 @@ public sealed record MalformedGraphTests
 
     private static QueryGraph Graph(IEnumerable<Join>? joins = null)
     {
-        return QueryGraphs.Of(GraphShapeTests.Query(joins), Id, Id);
+        return QueryGraphs.Of(GraphShapeTests.Query(joins), Id);
     }
 
     private static WrittenNode With(WrittenNode node, string name, object value)

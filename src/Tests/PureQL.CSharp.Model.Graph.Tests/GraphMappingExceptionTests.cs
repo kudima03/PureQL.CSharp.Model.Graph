@@ -19,13 +19,12 @@ public sealed record GraphMappingExceptionTests
     public void GraphNamesAreTheContractOnes()
     {
         Assert.Equal(
-            ["Node", "Query", "id", "queryId", "visualizationId", "position"],
+            ["Node", "Query", "id", "queryId", "position"],
             [
                 GraphLabels.Node,
                 GraphLabels.Query,
                 GraphProperties.Id,
                 GraphProperties.QueryId,
-                GraphProperties.VisualizationId,
                 GraphProperties.Position,
             ]
         );

@@ -19,18 +19,15 @@ public static class QueryGraphs
     /// <summary>The graph of a query.</summary>
     /// <param name="query">The query.</param>
     /// <param name="id">The query's identifier, on every node.</param>
-    /// <param name="visualizationId">
-    /// The identifier of the visualization the query belongs to, on the root.
-    /// </param>
     /// <returns>The nodes and relationships; node 0 is the root.</returns>
     /// <exception cref="GraphMappingException">
     /// The query leaves a required value missing.
     /// </exception>
-    public static QueryGraph Of(PureQLQuery query, Guid id, Guid visualizationId)
+    public static QueryGraph Of(PureQLQuery query, Guid id)
     {
         GraphBuilder graph = new GraphBuilder(id);
         _ = GraphMapping.WritePureQLQuery(graph, query);
-        return graph.Graph(visualizationId);
+        return graph.Graph();
     }
 
     /// <summary>A query read back from its graph.</summary>

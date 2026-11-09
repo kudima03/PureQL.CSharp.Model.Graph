@@ -52,7 +52,7 @@ public sealed record ModelRoundTripTests
         GraphBuilder builder = new GraphBuilder(Id);
         int root = (int)Writer(type).Invoke(null, [builder, value])!;
         Assert.Equal(0, root);
-        IReadNode node = StoredGraphs.Root(builder.Graph(Id));
+        IReadNode node = StoredGraphs.Root(builder.Graph());
         try
         {
             return Reader(type).Invoke(null, [node])!;

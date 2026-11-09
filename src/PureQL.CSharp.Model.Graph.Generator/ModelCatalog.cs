@@ -103,7 +103,7 @@ internal sealed class ModelCatalog
     };
 
     /// <summary>Property names the graph itself uses.</summary>
-    private static readonly string[] Reserved = ["id", "queryId", "visualizationId"];
+    private static readonly string[] Reserved = ["id", "queryId"];
 
     public ModelCatalog(Type root)
     {

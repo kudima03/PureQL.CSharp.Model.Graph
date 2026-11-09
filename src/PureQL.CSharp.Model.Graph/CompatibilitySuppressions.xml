@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- https://learn.microsoft.com/dotnet/fundamentals/package-validation/diagnostic-ids -->
+<Suppressions
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>F:PureQL.CSharp.Model.Graph.GraphProperties.VisualizationId</Target>
+    <Left>lib/net11.0/PureQL.CSharp.Model.Graph.dll</Left>
+    <Right>lib/net11.0/PureQL.CSharp.Model.Graph.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+  <Suppression>
+    <DiagnosticId>CP0002</DiagnosticId>
+    <Target>M:PureQL.CSharp.Model.Graph.QueryGraphs.Of(PureQL.CSharp.Model.PureQLQuery,System.Guid,System.Guid)</Target>
+    <Left>lib/net11.0/PureQL.CSharp.Model.Graph.dll</Left>
+    <Right>lib/net11.0/PureQL.CSharp.Model.Graph.dll</Right>
+    <IsBaselineSuppression>true</IsBaselineSuppression>
+  </Suppression>
+</Suppressions>

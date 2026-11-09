@@ -489,23 +489,16 @@ internal sealed class Emitter(ModelCatalog catalog, string modelVersion)
         code.Line(
             "/// <param name=\"id\">The query's identifier, on every node.</param>"
         );
-        code.Line("/// <param name=\"visualizationId\">");
-        code.Line(
-            "/// The identifier of the visualization the query belongs to, on the root."
-        );
-        code.Line("/// </param>");
         code.Line(
             "/// <returns>The nodes and relationships; node 0 is the root.</returns>"
         );
         code.Line("/// <exception cref=\"GraphMappingException\">");
         code.Line("/// The query leaves a required value missing.");
         code.Line("/// </exception>");
-        code.Open(
-            $"public static QueryGraph Of({root} query, Guid id, Guid visualizationId)"
-        );
+        code.Open($"public static QueryGraph Of({root} query, Guid id)");
         code.Line("GraphBuilder graph = new GraphBuilder(id);");
         code.Line($"_ = GraphMapping.Write{root}(graph, query);");
-        code.Line("return graph.Graph(visualizationId);");
+        code.Line("return graph.Graph();");
         code.Close();
         code.Line();
         code.Line("/// <summary>A query read back from its graph.</summary>");
