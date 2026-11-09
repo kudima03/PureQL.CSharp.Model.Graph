@@ -6,10 +6,6 @@ public sealed record GraphBuilderTests
         "11111111-2222-3333-4444-555555555555"
     );
 
-    private static readonly Guid VisualizationId = Guid.Parse(
-        "66666666-7777-8888-9999-000000000000"
-    );
-
     [Fact]
     public void TheFirstNodeIsTheRootQuery()
     {
@@ -18,7 +14,7 @@ public sealed record GraphBuilderTests
         int child = builder.Add("Child");
         builder.Link(root, "Where", child);
 
-        QueryGraph graph = builder.Graph(VisualizationId);
+        QueryGraph graph = builder.Graph();
 
         Assert.Equal(
             ["Root", GraphLabels.Node, GraphLabels.Query],
@@ -26,11 +22,11 @@ public sealed record GraphBuilderTests
         );
         Assert.Equal(["Child", GraphLabels.Node], graph.Nodes[1].Labels);
         Assert.Equal([0, 1], graph.Nodes.Select(n => n.Index));
-        Assert.Equal(QueryId.ToString(), graph.Nodes[0].Properties[GraphProperties.Id]);
         Assert.Equal(
-            VisualizationId.ToString(),
-            graph.Nodes[0].Properties[GraphProperties.VisualizationId]
+            [GraphProperties.QueryId, GraphProperties.Id],
+            graph.Nodes[0].Properties.Keys
         );
+        Assert.Equal(QueryId.ToString(), graph.Nodes[0].Properties[GraphProperties.Id]);
         Assert.All(
             graph.Nodes,
             n => Assert.Equal(QueryId.ToString(), n.Properties[GraphProperties.QueryId])
@@ -66,7 +62,7 @@ public sealed record GraphBuilderTests
         builder.SetOptional(node, "absents", (IEnumerable<string>?)null);
 
         IReadOnlyDictionary<string, object> properties = builder
-            .Graph(VisualizationId)
+            .Graph()
             .Nodes[0]
             .Properties;
 
@@ -103,7 +99,7 @@ public sealed record GraphBuilderTests
         builder.ManyOptional(root, "Absent", "absent", (IEnumerable<string>?)null, Leaf);
         builder.Link(root, "Pagination", "pagination", "d", Leaf);
 
-        QueryGraph graph = builder.Graph(VisualizationId);
+        QueryGraph graph = builder.Graph();
 
         Assert.Equal(
             [

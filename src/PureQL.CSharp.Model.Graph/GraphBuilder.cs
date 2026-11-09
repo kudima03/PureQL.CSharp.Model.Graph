@@ -198,12 +198,9 @@ internal sealed class GraphBuilder(Guid queryId)
     }
 
     /// <summary>The graph, with the root marked as the query.</summary>
-    public QueryGraph Graph(Guid visualizationId)
+    public QueryGraph Graph()
     {
         _properties[0][GraphProperties.Id] = _queryId;
-        _properties[0][GraphProperties.VisualizationId] = GraphValues.Uuid(
-            visualizationId
-        );
         WrittenNode[] nodes = new WrittenNode[_labels.Count];
         for (int i = 0; i < nodes.Length; i++)
         {

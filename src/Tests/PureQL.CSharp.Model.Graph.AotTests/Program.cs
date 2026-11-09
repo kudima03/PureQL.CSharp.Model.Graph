@@ -43,12 +43,11 @@ JsonTypeInfo<PureQLQuery> queryInfo = options.GetTypeInfo<PureQLQuery>();
 ];
 
 Guid id = Guid.NewGuid();
-Guid visualizationId = Guid.NewGuid();
 int nodes = 0;
 foreach ((string name, PureQLQuery query) in samples)
 {
     string expected = JsonSerializer.Serialize(query, queryInfo);
-    QueryGraph graph = QueryGraphs.Of(query, id, visualizationId);
+    QueryGraph graph = QueryGraphs.Of(query, id);
     PureQLQuery back = QueryGraphs.Read(StoredGraphs.Root(graph));
     string actual = JsonSerializer.Serialize(back, queryInfo);
     if (actual != expected)

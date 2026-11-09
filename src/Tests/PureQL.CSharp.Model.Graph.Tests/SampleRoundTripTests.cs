@@ -4,10 +4,6 @@ public sealed record SampleRoundTripTests
 {
     private static readonly Guid Id = Guid.Parse("8f2a5c1e-3b7d-4e9a-a1c2-6d4b8e0f2a37");
 
-    private static readonly Guid VisualizationId = Guid.Parse(
-        "3f2a6c1e-8b4d-4e2a-9c1f-1a2b3c4d5e6f"
-    );
-
     [Fact]
     public void EverySampleIsLoaded()
     {
@@ -20,17 +16,14 @@ public sealed record SampleRoundTripTests
     {
         PureQLQuery query = QuerySamples.All[name];
 
-        QueryGraph graph = QueryGraphs.Of(query, Id, VisualizationId);
+        QueryGraph graph = QueryGraphs.Of(query, Id);
         PureQLQuery back = QueryGraphs.Read(StoredGraphs.Root(graph));
 
         Assert.Equal(
             PureQLJson.Serialize(query, typeof(PureQLQuery)),
             PureQLJson.Serialize(back, typeof(PureQLQuery))
         );
-        Assert.Equal(
-            Describe(graph),
-            Describe(QueryGraphs.Of(back, Id, VisualizationId))
-        );
+        Assert.Equal(Describe(graph), Describe(QueryGraphs.Of(back, Id)));
     }
 
     public static TheoryData<string> Samples()
