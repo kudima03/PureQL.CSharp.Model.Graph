@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-preview.1.0.0] - 2026-11-09
+
+A stored query no longer knows which visualization uses it: visualizations hold the
+query's id instead.
+
+### Changed
+
+- **Breaking:** `QueryGraphs.Of(PureQLQuery, Guid id)` replaces
+  `QueryGraphs.Of(PureQLQuery, Guid id, Guid visualizationId)`. The root node keeps `id`
+  and `queryId` and no longer carries a `visualizationId` property.
+
+### Removed
+
+- **Breaking:** `GraphProperties.VisualizationId`.
+
 ## [0.1.0-preview.0.1.0] - 2026-11-09
 
 First release.
@@ -27,5 +42,6 @@ First release.
 - Native AOT compatible: the library uses no reflection.
 - Targets `net11.0` and depends on `PureQL.CSharp.Model` `0.1.0-preview.14.0.0`.
 
-[Unreleased]: https://github.com/kudima03/PureQL.CSharp.Model.Graph/compare/0.1.0-preview.0.1.0...HEAD
+[Unreleased]: https://github.com/kudima03/PureQL.CSharp.Model.Graph/compare/0.1.0-preview.1.0.0...HEAD
+[0.1.0-preview.1.0.0]: https://github.com/kudima03/PureQL.CSharp.Model.Graph/compare/0.1.0-preview.0.1.0...0.1.0-preview.1.0.0
 [0.1.0-preview.0.1.0]: https://github.com/kudima03/PureQL.CSharp.Model.Graph/releases/tag/0.1.0-preview.0.1.0
