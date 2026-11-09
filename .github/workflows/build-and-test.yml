@@ -6,7 +6,7 @@ on:
 
 env:
   COVERAGE_WARNING_THRESHOLD: 99
-  COVERAGE_THRESHOLD: 95
+  COVERAGE_THRESHOLD: 97
   MUTATION_THRESHOLD: 80
 
 jobs:
@@ -39,6 +39,10 @@ jobs:
       run: dotnet csharpier check .
     - name: Test
       run: dotnet test --no-build --verbosity normal --logger trx --collect:"XPlat Code Coverage"
+    - name: Publish the Native AOT check
+      run: dotnet publish Tests/PureQL.CSharp.Model.Graph.AotTests --configuration Release --output aot
+    - name: Run the Native AOT check
+      run: ./aot/PureQL.CSharp.Model.Graph.AotTests
     - name: Combine Coverage Reports
       uses: danielpalme/ReportGenerator-GitHub-Action@5.5.12
       with:

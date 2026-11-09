@@ -5,6 +5,7 @@ updates:
     - "src/PureQL.CSharp.Model.Graph"
     - "src/PureQL.CSharp.Model.Graph.Generator"
     - "src/Tests/PureQL.CSharp.Model.Graph.Tests"
+    - "src/Tests/PureQL.CSharp.Model.Graph.AotTests"
   schedule:
     interval: daily
 - package-ecosystem: "github-actions"

@@ -3,6 +3,7 @@
     <File Path=".editorconfig" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="Tests/PureQL.CSharp.Model.Graph.AotTests/PureQL.CSharp.Model.Graph.AotTests.csproj" />
     <Project Path="Tests/PureQL.CSharp.Model.Graph.Tests/PureQL.CSharp.Model.Graph.Tests.csproj" />
   </Folder>
   <Project Path="PureQL.CSharp.Model.Graph.Generator/PureQL.CSharp.Model.Graph.Generator.csproj" />
