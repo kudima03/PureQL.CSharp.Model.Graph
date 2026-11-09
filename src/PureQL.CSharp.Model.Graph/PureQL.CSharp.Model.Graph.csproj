@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net11.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsAotCompatible>true</IsAotCompatible>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnablePackageValidation>true</EnablePackageValidation>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PackageId>PureQL.CSharp.Model.Graph</PackageId>
+    <RootNamespace>PureQL.CSharp.Model.Graph</RootNamespace>
+    <AssemblyName>PureQL.CSharp.Model.Graph</AssemblyName>
+    <Authors>Dmitry Kurochkin</Authors>
+    <Description>Generated, driver-free mapping of a PureQL query model to a property graph and back.</Description>
+    <PackageTags>pureql;graph;neo4j;query;model</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/kudima03/PureQL.CSharp.Model.Graph</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kudima03/PureQL.CSharp.Model.Graph</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="PureQL.CSharp.Model.Graph.Tests" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="PureQL.CSharp.Model" Version="0.1.0-preview.14.0.0" />
+  </ItemGroup>
+</Project>

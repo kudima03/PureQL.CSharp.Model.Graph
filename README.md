@@ -1,19 +1,35 @@
-# Pure.Template
+# PureQL.CSharp.Model.Graph
 
-Project template for new **Pure** ecosystem NuGet libraries.
+Generated, driver-free mapping of a **PureQL** query model to a property graph and back.
 
+[![.NET build & test](https://github.com/kudima03/PureQL.CSharp.Model.Graph/actions/workflows/build-and-test.yml/badge.svg?branch=main)](https://github.com/kudima03/PureQL.CSharp.Model.Graph/actions/workflows/build-and-test.yml)
+[![Build and Deploy](https://github.com/kudima03/PureQL.CSharp.Model.Graph/actions/workflows/publish-nuget.yml/badge.svg?branch=main)](https://github.com/kudima03/PureQL.CSharp.Model.Graph/actions/workflows/publish-nuget.yml)
+[![NuGet](https://img.shields.io/nuget/v/PureQL.CSharp.Model.Graph)](https://www.nuget.org/packages/PureQL.CSharp.Model.Graph)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ## Overview
 
-`Pure.Template` is the canonical starting point for new Pure ecosystem packages. It ships with a pre-configured project structure, `.editorconfig`, GitHub Actions workflows for build/test and NuGet publish, and standard `CODEOWNERS` and `CODE_OF_CONDUCT.md` files — so a new library can be bootstrapped consistently without manually copying configuration from another repo.
+`PureQL.CSharp.Model.Graph` turns a `PureQLQuery` of
+[`PureQL.CSharp.Model`](https://github.com/kudima03/PureQL.CSharp.Model) into a list of
+nodes and relationships that any property-graph store can write in one statement, and
+reads a stored graph back into the model. It has no database driver dependency.
 
-## What's included
+Work in progress.
 
-| Item | Description |
-|------|-------------|
-| `.editorconfig` | Shared code style rules for the Pure ecosystem |
-| `CODEOWNERS` | Default ownership configuration |
-| `CODE_OF_CONDUCT.md` | Contributor code of conduct |
-| `.github/workflows/build-and-test.yml` | CI workflow: restore, build, and test on every push |
-| `.github/workflows/publish-nuget.yml` | Publish workflow: triggered on git tag push |
+## Dependencies
+
+- [`PureQL.CSharp.Model`](https://github.com/kudima03/PureQL.CSharp.Model) `0.1.0-preview.14.0.0`
+
+## Target Frameworks
+
+- .NET 11
+
+## Installation
+
+```shell
+dotnet add package PureQL.CSharp.Model.Graph
+```
+
+## License
+
+MIT

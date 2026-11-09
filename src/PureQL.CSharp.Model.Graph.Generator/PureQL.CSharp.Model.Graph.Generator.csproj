@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Generates the graph writers and readers of PureQL.CSharp.Model.Graph from the model
+    it references, by reflection. Keep the model version equal to the library's.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net11.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="PureQL.CSharp.Model" Version="0.1.0-preview.14.0.0" />
+  </ItemGroup>
+</Project>
