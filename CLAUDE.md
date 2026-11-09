@@ -38,7 +38,7 @@ This is a **model-to-property-graph mapping library** for PureQL query models. I
 
 **Target framework:** net11.0 only, as the model. `IsAotCompatible` is `true`; no reflection in the library.
 
-**Package validation:** enabled against `PackageValidationBaselineVersion` `0.1.0-preview.0.1.0`, the first release.
+**Package validation:** enabled against `PackageValidationBaselineVersion` `0.1.0-preview.1.0.0`, the release that removed the visualization id.
 
 **Mutation testing:** `src/stryker-config.json` sets `language-version: Preview`, which Stryker 5.0.0 needs to parse C# 15. CI does not run it.
 
