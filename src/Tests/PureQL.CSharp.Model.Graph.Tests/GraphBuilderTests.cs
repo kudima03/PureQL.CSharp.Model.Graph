@@ -18,7 +18,7 @@ public sealed record GraphBuilderTests
         int child = builder.Add("Child");
         builder.Link(root, "Where", child);
 
-        QueryGraph graph = builder.Graph(QueryId, VisualizationId);
+        QueryGraph graph = builder.Graph(VisualizationId);
 
         Assert.Equal(
             ["Root", GraphLabels.Node, GraphLabels.Query],
@@ -66,7 +66,7 @@ public sealed record GraphBuilderTests
         builder.SetOptional(node, "absents", (IEnumerable<string>?)null);
 
         IReadOnlyDictionary<string, object> properties = builder
-            .Graph(QueryId, VisualizationId)
+            .Graph(VisualizationId)
             .Nodes[0]
             .Properties;
 
@@ -103,7 +103,7 @@ public sealed record GraphBuilderTests
         builder.ManyOptional(root, "Absent", "absent", (IEnumerable<string>?)null, Leaf);
         builder.Link(root, "Pagination", "pagination", "d", Leaf);
 
-        QueryGraph graph = builder.Graph(QueryId, VisualizationId);
+        QueryGraph graph = builder.Graph(VisualizationId);
 
         Assert.Equal(
             [

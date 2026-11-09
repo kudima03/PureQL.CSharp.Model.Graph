@@ -28,6 +28,11 @@ jobs:
       run: dotnet tool restore
     - name: Build
       run: dotnet build --no-restore -warnaserror
+    - name: Check the mapping is generated from the referenced model
+      run: |
+        dotnet run --no-build --project PureQL.CSharp.Model.Graph.Generator
+        git add --intent-to-add PureQL.CSharp.Model.Graph/Generated
+        git diff --exit-code -- PureQL.CSharp.Model.Graph/Generated
     - name: Code style check by dotnet format
       run: dotnet format --verify-no-changes
     - name: Code style check by csharpier
