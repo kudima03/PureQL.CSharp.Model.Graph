@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    A console application published with Native AOT, which proves that the library is
+    usable without reflection: CI publishes it and runs it over samples of every query
+    variant. Its code compiles under the trim and AOT analyzers with warnings as
+    errors, so it is also the documented usage checked by the compiler.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net11.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="PureQL.CSharp.Model.Samples" Version="0.1.0-preview.3.0.0" />
+    <PackageReference Include="PureQL.CSharp.Model.Serialization" Version="0.1.0-preview.6.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\PureQL.CSharp.Model.Graph\PureQL.CSharp.Model.Graph.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\PureQL.CSharp.Model.Graph.Tests\StoredGraphs.cs" Link="StoredGraphs.cs" />
+  </ItemGroup>
+</Project>

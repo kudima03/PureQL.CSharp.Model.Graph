@@ -29,6 +29,13 @@ public sealed record GraphValuesTests
     }
 
     [Fact]
+    public void NegativeZeroIsZero()
+    {
+        Assert.Equal("0", GraphValues.Decimal(new decimal(0, 0, 0, true, 0)));
+        Assert.Equal("0", GraphValues.Decimal(new decimal(0, 0, 0, true, 2)));
+    }
+
+    [Fact]
     public void UuidsAreSpelledInTheDFormat()
     {
         Guid uuid = Guid.Parse("8F2A5C1E-3B7D-4E9A-A1C2-6D4B8E0F2A37");
