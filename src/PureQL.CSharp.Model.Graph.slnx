@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Tests/PureQL.CSharp.Model.Graph.Tests/PureQL.CSharp.Model.Graph.Tests.csproj" />
+  </Folder>
+  <Project Path="PureQL.CSharp.Model.Graph.Generator/PureQL.CSharp.Model.Graph.Generator.csproj" />
+  <Project Path="PureQL.CSharp.Model.Graph/PureQL.CSharp.Model.Graph.csproj" />
+</Solution>
