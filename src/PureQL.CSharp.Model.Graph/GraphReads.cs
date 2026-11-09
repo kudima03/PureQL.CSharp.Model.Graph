@@ -144,6 +144,14 @@ internal static class GraphReads
         };
     }
 
+    /// <summary>The single child of an optional union, or <see langword="null"/>.</summary>
+    public static T? Optional<T>(IReadNode node, string type, Func<IReadNode, T> read)
+        where T : struct
+    {
+        IReadNode? child = OptionalChild(node, type);
+        return child is null ? null : read(child);
+    }
+
     /// <summary>The children of a list, in position order.</summary>
     public static T[] Many<T>(IReadNode node, string type, Func<IReadNode, T> read)
     {
@@ -181,7 +189,8 @@ internal static class GraphReads
         );
     }
 
-    private static bool Has(IReadNode node, string name)
+    /// <summary>Whether the node has a property, holding anything but null.</summary>
+    public static bool Has(IReadNode node, string name)
     {
         return node.Properties.GetValueOrDefault(name) is not null;
     }

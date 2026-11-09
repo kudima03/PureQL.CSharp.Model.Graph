@@ -198,9 +198,9 @@ internal sealed class GraphBuilder(Guid queryId)
     }
 
     /// <summary>The graph, with the root marked as the query.</summary>
-    public QueryGraph Graph(Guid id, Guid visualizationId)
+    public QueryGraph Graph(Guid visualizationId)
     {
-        _properties[0][GraphProperties.Id] = GraphValues.Uuid(id);
+        _properties[0][GraphProperties.Id] = _queryId;
         _properties[0][GraphProperties.VisualizationId] = GraphValues.Uuid(
             visualizationId
         );
