@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
-All `dotnet` commands must be run from the `./src` directory. The SDK is pinned by `global.json` (.NET 11, for the model's C# 15 unions); where the system SDK is older, use `~/.dotnet/dotnet` or put it first on `PATH` with `DOTNET_ROOT=$HOME/.dotnet`.
+All `dotnet` commands must be run from the `./src` directory. The projects need the .NET 11 SDK (for the model's C# 15 unions); where the system SDK is older, use `~/.dotnet/dotnet` or put it first on `PATH` with `DOTNET_ROOT=$HOME/.dotnet`.
 
 ```bash
 dotnet restore
@@ -22,7 +22,7 @@ CI additionally passes `-p:AssemblyVersion` (pinned to the major) and `-p:FileVe
 
 ## Architecture
 
-This is a **model-to-property-graph mapping library** for PureQL query models. It depends on `PureQL.CSharp.Model` `0.1.0-preview.14.0.0` only (generated from PureQL specification `0.1.0-preview.2.0.1`; see its CLAUDE.md for the naming rules): sealed records, one per schema node, and flat C# 15 `union`s of them (structs implementing `IUnion`, one constructor per case, `Value` the record held). No database driver: the `PureQL.CSharp.Model.Graph.Neo4j.*` packages bind it to Neo4j. The public API is a shared contract of that family; do not rename or reshape it.
+This is a **model-to-property-graph mapping library** for PureQL query models. It depends on `PureQL.CSharp.Model` `0.1.0-preview.14.1.0` only (generated from PureQL specification `0.1.0-preview.2.0.1`; see its CLAUDE.md for the naming rules): sealed records, one per schema node, and flat C# 15 `union`s of them (structs implementing `IUnion`, one constructor per case, `Value` the record held). No database driver: the `PureQL.CSharp.Model.Graph.Neo4j.*` packages bind it to Neo4j. The public API is a shared contract of that family; do not rename or reshape it.
 
 **Public API (namespace `PureQL.CSharp.Model.Graph`):** `QueryGraphs.Of(PureQLQuery, Guid id)` → `QueryGraph` (`WrittenNode`s with an index, labels and properties; `WrittenRelationship`s between node indexes with a type and an optional position; node 0 is the root) and `QueryGraphs.Read(IReadNode root)` → `PureQLQuery`. `IReadNode` is a stored node read back (record label, properties, children by relationship type in position order); `ReadNode` implements it over a dictionary, a lookup or a function. `GraphLabels` (`Node`, `Query`) and `GraphProperties` (`id`, `queryId`, `position`) name what the graph adds to the model. `GraphMappingException` reports a query that cannot be written or a graph that cannot be read.
 
