@@ -12,6 +12,6 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="PureQL.CSharp.Model" Version="0.1.0-preview.14.0.0" />
+    <PackageReference Include="PureQL.CSharp.Model" Version="0.1.0-preview.14.1.0" />
   </ItemGroup>
 </Project>
