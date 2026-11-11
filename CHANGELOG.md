@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-preview.1.1.0] - 2026-11-11
+
+### Changed
+
+- Updated the `PureQL.CSharp.Model` dependency to `0.1.0-preview.14.1.0`.
+- Built and tested with the .NET 11 GA SDK.
+
 ## [0.1.0-preview.1.0.0] - 2026-11-09
 
 A stored query no longer knows which visualization uses it: visualizations hold the
