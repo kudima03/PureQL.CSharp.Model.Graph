@@ -13,12 +13,16 @@ namespace PureQL.CSharp.Model.Graph.Tests;
 /// <summary>
 /// Builds instances of every model type by reflection: one per case of a union, and
 /// for a record one with every optional value set (and non-default <c>over</c> /
-/// <c>direction</c>) and one with none. The items of a list differ, as list literals
-/// and <c>distinctBy</c> repeat no value, and the operands of an operator give it the
-/// type it declares: a nullable operator gets nullable operands and a non-null one
-/// non-null operands (a non-null <c>coalesce</c> one of each), of the type it declares
-/// where the operand admits it. Operands are leaves, so that every record is built
-/// once, as a case of the unions that hold it.
+/// <c>direction</c> / <c>mode</c> / flag) and one with none (but the first, for a
+/// record that requires one of its optional properties). The items of a list differ,
+/// as list literals and <c>distinctBy</c> repeat no value, and the operands of an
+/// operator give it the type it declares: a nullable operator gets nullable operands
+/// and a non-null one non-null operands (a non-null <c>coalesce</c> one of each), of
+/// the type it declares where the operand admits it. Operands are leaves, so that every
+/// record is built once, as a case of the unions that hold it; a query is not built
+/// inside one of its own kind, so that the samples are finite. Literals whose value
+/// the schema restricts by position (an <c>offset</c>, a <c>fraction</c>, …) hold a
+/// value the position accepts.
 /// </summary>
 internal static class ModelSamples
 {
@@ -35,6 +39,34 @@ internal static class ModelSamples
     ];
 
     private static readonly string[] Contexts = ["Row", "Projection", "Group", "Total"];
+
+    /// <summary>The literals that the unions of a restricted position hold.</summary>
+    private static readonly Dictionary<Type, object> Restricted = new Dictionary<
+        Type,
+        object
+    >
+    {
+        [typeof(Offset)] = new LiteralInteger(2),
+        [typeof(Buckets)] = new LiteralInteger(4),
+        [typeof(RegexGroup)] = new LiteralInteger(1),
+        [typeof(Fraction)] = new LiteralDecimal(0.5m),
+        [typeof(RegexPattern)] = new LiteralString("^[a-z]+(-[0-9]{2,})?$"),
+        [typeof(DistanceDecimal)] = new LiteralDecimal(2.5m),
+        [typeof(DistanceDatetimeSecondsSeconds)] = new LiteralDecimal(0.25m),
+    };
+
+    /// <summary>The lists that hold one item at most (the sort key of a range).</summary>
+    private static readonly Type[] Single =
+    [
+        typeof(OrderItemIntegerRow),
+        typeof(OrderItemDecimalRow),
+        typeof(OrderItemDateRow),
+        typeof(OrderItemDatetimeRow),
+    ];
+
+    /// <summary>The records being built, outermost first.</summary>
+    [ThreadStatic]
+    private static List<Type>? _building;
 
     public static IReadOnlyList<Type> Types { get; } =
     [
@@ -58,7 +90,13 @@ internal static class ModelSamples
         {
             foreach (Type caseType in Cases(type))
             {
-                yield return Wrap(type, Create(caseType, false));
+                yield return Wrap(
+                    type,
+                    Restricted.TryGetValue(type, out object? literal)
+                    && (literal.GetType() == caseType)
+                        ? literal
+                        : Create(caseType, false)
+                );
             }
 
             yield break;
@@ -126,11 +164,33 @@ internal static class ModelSamples
         bool nullable = declared?.Nullable ?? false;
         bool coalesce =
             type.Name.StartsWith("Coalesce", StringComparison.Ordinal) && !nullable;
-        return constructor.Invoke([
-            .. constructor
-                .GetParameters()
-                .Select(p => Argument(p, full, nullable, coalesce, declared)),
-        ]);
+        ParameterInfo[] parameters = constructor.GetParameters();
+        // A record of optional properties only requires one of them.
+        bool atLeastOne =
+            (declared is null)
+            && (parameters.Length > 0)
+            && parameters.All(p => p.HasDefaultValue);
+        _building ??= [];
+        _building.Add(type);
+        try
+        {
+            return constructor.Invoke([
+                .. parameters.Select(
+                    (p, i) =>
+                        Argument(
+                            p,
+                            full || (atLeastOne && (i == 0)),
+                            nullable,
+                            coalesce,
+                            declared
+                        )
+                ),
+            ]);
+        }
+        finally
+        {
+            _building.RemoveAt(_building.Count - 1);
+        }
     }
 
     /// <summary>A leaf case of an operand union, as described above.</summary>
@@ -139,6 +199,9 @@ internal static class ModelSamples
         Type[] cases = Cases(union);
         Type[] leaves = [.. cases.Where(IsLeaf).OrderBy(LeafOrder)];
         Type[] candidates = leaves.Length > 0 ? leaves : cases;
+        // A query of one kind is not built inside a query of the same kind.
+        Type[] fresh = [.. candidates.Where(c => !(_building ?? []).Contains(c))];
+        candidates = fresh.Length > 0 ? fresh : candidates;
         Type[] wanted = [.. candidates.Where(c => DeclaredType(c)?.Nullable == nullable)];
         wanted = wanted.Length > 0 ? wanted : candidates;
         string?[] names = [parent?.Name, NaturalType(union)];
@@ -259,8 +322,9 @@ internal static class ModelSamples
         )
         {
             Type item = type.GetGenericArguments()[0];
-            Array items = Array.CreateInstance(item, 2);
-            for (int i = 0; i < 2; i++)
+            int count = Single.Contains(item) ? 1 : 2;
+            Array items = Array.CreateInstance(item, count);
+            for (int i = 0; i < count; i++)
             {
                 // A non-null coalesce has exactly one non-null operand.
                 bool wanted = nullable || (coalesce && (i == 0));
@@ -272,8 +336,6 @@ internal static class ModelSamples
 
         return type switch
         {
-            _ when type == typeof(PaginationSkip) || type == typeof(PaginationTake) =>
-                Wrap(type, full ? new ParamInteger("page") : 20L),
             _ when IsUnion(type) => Operand(type, nullable, declared),
             _ when type == typeof(string) => $"name{variant}",
             _ when type == typeof(long) => -42L + variant,
@@ -302,6 +364,10 @@ internal static class ModelSamples
                 ? SortDirection.Desc
                 : SortDirection.Asc,
             _ when type == typeof(JoinKind) => JoinKind.Right,
+            _ when type == typeof(NormalizationForm) => NormalizationForm.NFKC,
+            _ when type == typeof(RoundingMode) => full
+                ? RoundingMode.HalfEven
+                : RoundingMode.HalfAwayFromZero,
             _ => Create(type, full),
         };
     }
@@ -325,8 +391,11 @@ internal static class ModelAssert
             return;
         }
 
+        // A list is compared by its items: an inner list of a list of lists is built as
+        // an IEnumerable<T>[] and read back as a T[][].
+        bool lists = expected is IEnumerable and not string && actual is IEnumerable;
         Assert.True(
-            expected.GetType() == actual.GetType(),
+            lists || (expected.GetType() == actual.GetType()),
             $"{path}: expected {expected.GetType().Name}, got {actual.GetType().Name}"
         );
         Type type = expected.GetType();

@@ -217,12 +217,29 @@ internal sealed class Emitter(ModelCatalog catalog, string modelVersion)
                         ";"
                     );
                     break;
+                case PropertyKind.ManyLists:
+                    code.Call(
+                        "graph.ManyLists",
+                        ["node", relationship, parameter, access, $"Write{item}"],
+                        ";"
+                    );
+                    break;
                 case PropertyKind.ScalarUnion:
                     code.Call(
                         $"Write{item}",
                         ["graph", "node", parameter, relationship, access],
                         ";"
                     );
+                    break;
+                case PropertyKind.OptionalScalarUnion:
+                    code.Open($"if ({access}.HasValue)");
+                    code.Call(
+                        $"Write{item}",
+                        ["graph", "node", parameter, relationship, $"{access}.Value"],
+                        ";"
+                    );
+                    code.Close();
+                    code.Line();
                     break;
                 default:
                     throw new InvalidOperationException(
@@ -268,7 +285,12 @@ internal sealed class Emitter(ModelCatalog catalog, string modelVersion)
             PropertyKind.Many => $"GraphReads.Many(node, {relationship}, Read{item})",
             PropertyKind.OptionalMany =>
                 $"GraphReads.ManyOptional(node, {relationship}, {parameter}, Read{item})",
+            PropertyKind.ManyLists =>
+                $"GraphReads.ManyLists(node, {relationship}, Read{item})",
             PropertyKind.ScalarUnion => $"Read{item}(node, {parameter}, {relationship})",
+            PropertyKind.OptionalScalarUnion =>
+                $"GraphReads.OptionalScalarUnion(node, {parameter}, {relationship}, "
+                    + $"Read{item})",
             _ => throw new InvalidOperationException($"{property.Kind} is not read."),
         };
     }

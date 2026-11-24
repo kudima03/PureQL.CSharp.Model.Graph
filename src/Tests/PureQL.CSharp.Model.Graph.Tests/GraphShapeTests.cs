@@ -32,10 +32,12 @@ public sealed record GraphShapeTests
             Assert.Equal(i, node.Index);
             Assert.Equal(Id.ToString("D"), node.Properties[GraphProperties.QueryId]);
             Assert.Equal(GraphLabels.Node, node.Labels[1]);
-            Assert.NotNull(
-                typeof(PureQLQuery)
-                    .Assembly.GetTypes()
-                    .SingleOrDefault(t => t.Name == node.Labels[0])
+            Assert.True(
+                (node.Labels[0] == GraphLabels.List)
+                    || typeof(PureQLQuery)
+                        .Assembly.GetTypes()
+                        .Count(t => t.Name == node.Labels[0]) == 1,
+                node.Labels[0]
             );
             if (i > 0)
             {
@@ -156,8 +158,114 @@ public sealed record GraphShapeTests
         Assert.Equal(["ParamInteger", GraphLabels.Node], graph.Nodes[1].Labels);
         Assert.Equal("pageSize", graph.Nodes[1].Properties["param"]);
         Pagination back = GraphMapping.ReadPagination(StoredGraphs.Root(graph));
-        Assert.Equal(20L, back.Skip.Value);
-        Assert.Equal(new ParamInteger("pageSize"), back.Take.Value);
+        Assert.Equal(20L, back.Skip?.Value);
+        Assert.Equal(new ParamInteger("pageSize"), back.Take?.Value);
+    }
+
+    [Fact]
+    public void AnAbsentSkipOrTakeIsNotStored()
+    {
+        GraphBuilder builder = new GraphBuilder(Id);
+        _ = GraphMapping.WritePagination(
+            builder,
+            new Pagination(take: new PaginationTake(10L))
+        );
+        QueryGraph graph = builder.Graph();
+
+        Assert.False(graph.Nodes[0].Properties.ContainsKey("skip"));
+        Assert.Equal(10L, graph.Nodes[0].Properties["take"]);
+        Assert.Empty(graph.Relationships);
+        Pagination back = GraphMapping.ReadPagination(StoredGraphs.Root(graph));
+        Assert.Null(back.Skip);
+        Assert.Equal(10L, back.Take?.Value);
+        Pagination skipOnly = GraphMapping.ReadPagination(
+            TestNodes.With(
+                "Pagination",
+                [],
+                ("Skip", TestNodes.Of("ParamInteger", ("param", "offset")))
+            )
+        );
+        Assert.Equal(new ParamInteger("offset"), skipOnly.Skip?.Value);
+        Assert.Null(skipOnly.Take);
+    }
+
+    [Fact]
+    public void InlineRowsAreListNodesOfTheirItems()
+    {
+        GraphBuilder builder = new GraphBuilder(Id);
+        _ = GraphMapping.WriteSubqueryRows(
+            builder,
+            new SubqueryRows(
+                "tiers",
+                [
+                    [
+                        new RowItem("tier", new Cell(new LiteralString("gold"))),
+                        new RowItem("rate", new Cell(new LiteralDecimal(0.1m))),
+                    ],
+                    [new RowItem("tier", new Cell(new ParamString("tier")))],
+                ]
+            )
+        );
+        QueryGraph graph = builder.Graph();
+
+        Assert.Equal(
+            [
+                "SubqueryRows",
+                GraphLabels.List,
+                "RowItem",
+                "LiteralString",
+                "RowItem",
+                "LiteralDecimal",
+                GraphLabels.List,
+                "RowItem",
+                "ParamString",
+            ],
+            graph.Nodes.Select(n => n.Labels[0])
+        );
+        Assert.Equal([GraphLabels.List, GraphLabels.Node], graph.Nodes[1].Labels);
+        Assert.Equal([GraphProperties.QueryId], graph.Nodes[1].Properties.Keys);
+        Assert.Equal(
+            [
+                new WrittenRelationship(0, 1, "Rows", 0),
+                new WrittenRelationship(2, 3, "Expression", null),
+                new WrittenRelationship(1, 2, "Rows", 0),
+                new WrittenRelationship(4, 5, "Expression", null),
+                new WrittenRelationship(1, 4, "Rows", 1),
+                new WrittenRelationship(0, 6, "Rows", 1),
+                new WrittenRelationship(7, 8, "Expression", null),
+                new WrittenRelationship(6, 7, "Rows", 0),
+            ],
+            graph.Relationships
+        );
+        SubqueryRows back = GraphMapping.ReadSubqueryRows(StoredGraphs.Root(graph));
+        Assert.Equal([2, 1], back.Rows.Select(r => r.Count()));
+        Assert.Equal(
+            new Cell(new LiteralDecimal(0.1m)).Value,
+            back.Rows.First().Last().Expression.Value
+        );
+        Assert.Equal(new ParamString("tier"), back.Rows.Last().Single().Expression.Value);
+    }
+
+    [Fact]
+    public void TheConstantAllIsANodeAndANumberOfRowsIsAProperty()
+    {
+        GraphBuilder builder = new GraphBuilder(Id);
+        _ = GraphMapping.WriteFrame(
+            builder,
+            new Frame(new FrameRows(new All()), new FrameRows(2L))
+        );
+        QueryGraph graph = builder.Graph();
+
+        Assert.Equal(2L, graph.Nodes[0].Properties["following"]);
+        Assert.False(graph.Nodes[0].Properties.ContainsKey("preceding"));
+        Assert.Equal(
+            [new WrittenRelationship(0, 1, "Preceding", null)],
+            graph.Relationships
+        );
+        Assert.Equal(["All", GraphLabels.Node], graph.Nodes[1].Labels);
+        Frame back = GraphMapping.ReadFrame(StoredGraphs.Root(graph));
+        _ = Assert.IsType<All>(back.Preceding?.Value);
+        Assert.Equal(2L, back.Following?.Value);
     }
 
     [Fact]
@@ -166,7 +274,11 @@ public sealed record GraphShapeTests
         GraphBuilder builder = new GraphBuilder(Id);
         _ = GraphMapping.WriteOrderItemProjection(
             builder,
-            new OrderItemProjection(new ExprProjection(new FieldString("users", "name")))
+            new OrderItemProjection(
+                new OrderItemProjectionExpression(
+                    new ExprProjection(new FieldString("users", "name"))
+                )
+            )
         );
         _ = GraphMapping.WriteJoinEntity(
             builder,
@@ -183,7 +295,7 @@ public sealed record GraphShapeTests
         Assert.Equal(
             SortDirection.Desc,
             GraphMapping.ReadSortDirection(
-                TestNodes.Of("OrderItemProjection", ("direction", "Desc")),
+                TestNodes.Of("OrderItemProjectionExpression", ("direction", "Desc")),
                 "direction",
                 SortDirection.Asc
             )
@@ -191,7 +303,7 @@ public sealed record GraphShapeTests
         Assert.Equal(
             SortDirection.Asc,
             GraphMapping.ReadSortDirection(
-                TestNodes.Of("OrderItemProjection"),
+                TestNodes.Of("OrderItemProjectionExpression"),
                 "direction",
                 SortDirection.Asc
             )
