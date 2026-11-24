@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Follows `PureQL.CSharp.Model` `0.1.0-preview.15.0.0` (PureQL specification
 `0.1.0-preview.3.0.0`): every new record of the model is mapped (windows, combined queries,
 inline rows, recursive subqueries, `orderBy` by column, the new operators and their
-signatures). Graphs written with the previous model do not all read back; see *Stored
-graphs* below.
+signatures). Graphs written with the previous model are not read: drop them and write
+the queries again. The changes of shape are listed under *Graph shape* below.
 
 ### Added
 
@@ -29,9 +29,9 @@ graphs* below.
 
 - **Breaking:** depends on `PureQL.CSharp.Model` `0.1.0-preview.15.0.0`.
 
-### Stored graphs
+### Graph shape
 
-Graphs stored with `0.1.0-preview.1.x` that no longer map to the model:
+What a graph written with `0.1.0-preview.1.x` holds that this version does not read:
 
 - Labels the model no longer has: `OrderItemProjection` / `OrderItemGroup` are now
   `OrderItemProjectionExpression` / `OrderItemGroupExpression`, and `Subquery` is now
