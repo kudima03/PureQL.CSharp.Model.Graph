@@ -152,6 +152,48 @@ internal static class GraphReads
         return child is null ? null : read(child);
     }
 
+    /// <summary>
+    /// An optional union with a scalar case: read when the node has its property or its
+    /// relationship, absent otherwise.
+    /// </summary>
+    public static T? OptionalScalarUnion<T>(
+        IReadNode node,
+        string name,
+        string type,
+        Func<IReadNode, string, string, T> read
+    )
+        where T : struct
+    {
+        return Has(node, name) || (Children(node, type).Count > 0)
+            ? read(node, name, type)
+            : null;
+    }
+
+    /// <summary>
+    /// The inner lists of a list of lists, in position order: each a
+    /// <see cref="GraphLabels.List"/> node whose children are its items.
+    /// </summary>
+    public static T[][] ManyLists<T>(IReadNode node, string type, Func<IReadNode, T> read)
+    {
+        IReadOnlyList<IReadNode> lists = Children(node, type);
+        T[][] items = new T[lists.Count][];
+        for (int i = 0; i < items.Length; i++)
+        {
+            IReadNode list = lists[i];
+            if (list.Label != GraphLabels.List)
+            {
+                throw new GraphMappingException(
+                    $"The '{type}' relationship {i} of the {node.Label} node leads to a "
+                        + $"{list.Label} node, not a {GraphLabels.List} node."
+                );
+            }
+
+            items[i] = Many(list, type, read);
+        }
+
+        return items;
+    }
+
     /// <summary>The children of a list, in position order.</summary>
     public static T[] Many<T>(IReadNode node, string type, Func<IReadNode, T> read)
     {

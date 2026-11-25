@@ -29,9 +29,16 @@ the model, so the library uses no reflection and is trim- and Native AOT-compati
   (`Where`, `Left`, `Values`, `Columns`, …). Each item of a list gets its own relationship
   with an integer `position` (0-based); a single child has none.
 - **Unions are transparent.** Only the case a union holds is stored; on read, the node's
-  record label picks the case. `PaginationSkip` and `PaginationTake` (`long | ParamInteger`)
-  store a number as the property `skip` / `take` of the `Pagination` node and a parameter
-  as a `Skip` / `Take` relationship to a `ParamInteger` node.
+  record label picks the case. A union with a number case (`PaginationSkip`,
+  `FrameRows`, `RecursionMaxDepth`, the distances of a range window, …) stores a number
+  as a property of the node that holds it (`skip`, `preceding`, `maxDepth`, `days`, …)
+  and a record case as a relationship (`Skip`, `Preceding`, …) to its node. The constant
+  `"all"` of a frame or a range is the empty record `All`, stored as a node with no
+  properties of its own.
+- **Lists of lists.** The rows of inline rows (`SubqueryRows.Rows`) are a list of lists:
+  each row is a node labelled `List` (`GraphLabels.List`) and `Node`, linked from the
+  `SubqueryRows` node by a `Rows` relationship with its `position`, and its items are
+  linked from it by `Rows` relationships with theirs.
 - **Scalars are node properties** named after the constructor parameter (`source`,
   `field`, `param`, `value`, `alias`, `kind`, `direction`, `over`, …), spelled as
   [`PureQL.CSharp.Model.Serialization`](https://github.com/kudima03/PureQL.CSharp.Model.Serialization)
@@ -40,8 +47,8 @@ the model, so the library uses no reflection and is trim- and Native AOT-compati
   `DateOnly` as `yyyy-MM-dd`; `TimeOnly` as `HH:mm:ss[.fffffff]` and `DateTimeOffset` as
   `yyyy-MM-ddTHH:mm:ss[.fffffff]Z` in UTC, the fraction without trailing zeros. Lists of
   scalars (`distinctBy`, list literals) are `string[]`, `long[]` or `bool[]`. Enums are
-  stored by name (`Inner`, `Desc`, `All`), defaults included. The computed `Type` is not
-  stored.
+  stored by name (`Inner`, `Desc`, `All`, `NFC`, `HalfEven`), defaults included, and so
+  is the flag `distinct` (`false` when not set). The computed `Type` is not stored.
 - **Absent and empty.** An absent optional value is not stored. An optional list of
   records that is present but empty is stored as an empty-array property named after the
   list (`joins = []`), so `[]` and absent read back apart.
@@ -54,7 +61,8 @@ throws a `GraphMappingException` naming the node and the property or relationshi
 
 ## Dependencies
 
-- [`PureQL.CSharp.Model`](https://github.com/kudima03/PureQL.CSharp.Model) `0.1.0-preview.14.0.0`
+- [`PureQL.CSharp.Model`](https://github.com/kudima03/PureQL.CSharp.Model) `0.1.0-preview.15.0.0`
+  (PureQL specification `0.1.0-preview.3.0.0`)
 
 ## Target Frameworks
 

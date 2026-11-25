@@ -14,8 +14,8 @@ public sealed record ModelRoundTripTests
     [Fact]
     public void EveryReachableTypeIsMapped()
     {
-        Assert.Equal(731, MappedTypes().Count(t => !ModelSamples.IsUnion(t)));
-        Assert.Equal(113, MappedTypes().Count(ModelSamples.IsUnion));
+        Assert.Equal(2114, MappedTypes().Count(t => !ModelSamples.IsUnion(t)));
+        Assert.Equal(137, MappedTypes().Count(ModelSamples.IsUnion));
     }
 
     [Theory]

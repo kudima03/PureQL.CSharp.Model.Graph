@@ -41,11 +41,20 @@ internal enum PropertyKind
     /// a record case.
     /// </summary>
     ScalarUnion,
+
+    /// <summary>An optional union with one scalar case, stored as one when present.</summary>
+    OptionalScalarUnion,
+
+    /// <summary>
+    /// A required list of lists of records or unions: one list node per inner list, a
+    /// relationship to each, and from each one relationship per item.
+    /// </summary>
+    ManyLists,
 }
 
 /// <param name="Name">The model property, <c>Values</c>: the relationship type.</param>
 /// <param name="Parameter">The constructor parameter, <c>values</c>: the property name.</param>
-/// <param name="Type">The value type, or the item type of a list.</param>
+/// <param name="Type">The value type, or the item type of a list or of a list of lists.</param>
 /// <param name="Default">The name of an enum's default value, if it has one.</param>
 internal sealed record PropertyModel(
     string Name,
@@ -260,15 +269,22 @@ internal sealed class ModelCatalog
             Nullable.GetUnderlyingType(parameter.ParameterType)
             ?? parameter.ParameterType;
         bool optional = parameter.HasDefaultValue && (parameter.DefaultValue is null);
-        Type? item =
-            type.IsGenericType
-            && (type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                ? type.GetGenericArguments()[0]
-                : null;
+        Type? item = ItemOf(type);
         string parameterName = parameter.Name!;
         string? defaultName = null;
         PropertyKind kind;
-        if (item is not null)
+        Type? inner = item is not null ? ItemOf(item) : null;
+        if (inner is not null)
+        {
+            if (!IsChild(inner) || optional)
+            {
+                throw Unsupported(record, parameter);
+            }
+
+            type = inner;
+            kind = PropertyKind.ManyLists;
+        }
+        else if (item is not null)
         {
             bool scalar = Scalars.ContainsKey(item);
             if (!scalar && !IsChild(item))
@@ -318,10 +334,21 @@ internal sealed class ModelCatalog
             (true, _, _, true, _) when type == typeof(string) =>
                 PropertyKind.OptionalScalar,
             (_, true, _, false, _) => PropertyKind.ScalarUnion,
+            (_, true, _, true, _) => PropertyKind.OptionalScalarUnion,
             (_, _, true, false, _) => PropertyKind.Child,
             (_, _, true, true, true) => PropertyKind.OptionalChild,
             _ => throw Unsupported(record, parameter),
         };
+    }
+
+    /// <summary>The item type of a list, or <see langword="null"/>.</summary>
+    private static Type? ItemOf(Type type)
+    {
+        return
+            type.IsGenericType
+            && (type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            ? type.GetGenericArguments()[0]
+            : null;
     }
 
     /// <summary>A record, or a union of records only.</summary>

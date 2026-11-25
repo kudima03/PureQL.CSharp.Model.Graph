@@ -191,6 +191,34 @@ internal sealed class GraphBuilder(Guid queryId)
         }
     }
 
+    /// <summary>
+    /// Writes the inner lists of a required list of lists: one
+    /// <see cref="GraphLabels.List"/> node per inner list, linked from the node with a
+    /// position, and its items linked from it in turn.
+    /// </summary>
+    public void ManyLists<T>(
+        int from,
+        string type,
+        string name,
+        IEnumerable<IEnumerable<T>>? lists,
+        Func<GraphBuilder, T, int> write
+    )
+    {
+        long position = 0;
+        foreach (IEnumerable<T> items in lists ?? throw Missing(from, name))
+        {
+            if (items is null)
+            {
+                throw Missing(from, name + " item");
+            }
+
+            int list = Add(GraphLabels.List);
+            _relationships.Add(new WrittenRelationship(from, list, type, position));
+            Many(list, type, name, items, write);
+            position++;
+        }
+    }
+
     /// <summary>The exception for a union value that holds none of its cases.</summary>
     public static GraphMappingException Empty(string union)
     {

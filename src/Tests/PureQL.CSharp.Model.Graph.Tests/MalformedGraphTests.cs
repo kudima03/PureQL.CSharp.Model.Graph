@@ -109,17 +109,12 @@ public sealed record MalformedGraphTests
     [Fact]
     public void PaginationNeedsANumberOrAParameter()
     {
-        IReadNode none = TestNodes.Of("Pagination", ("take", 10L));
         IReadNode wrong = TestNodes.With(
             "Pagination",
-            [("skip", 0L)],
+            [("skip", 1L)],
             ("Take", TestNodes.Of("ParamString", ("param", "take")))
         );
 
-        AssertRejected(
-            "The Pagination node has no 'Skip' relationship.",
-            () => GraphMapping.ReadPagination(none)
-        );
         AssertRejected(
             "A ParamString node cannot be read as a PaginationTake",
             () => GraphMapping.ReadPagination(wrong)
@@ -139,6 +134,55 @@ public sealed record MalformedGraphTests
             "The 'skip' property of the Pagination node is 'zero', not an integer.",
             () =>
                 GraphMapping.ReadPagination(TestNodes.Of("Pagination", ("skip", "zero")))
+        );
+        AssertRejected(
+            "The Pagination node has 2 'Take' relationships, where one is expected.",
+            () =>
+                GraphMapping.ReadPagination(
+                    TestNodes.With(
+                        "Pagination",
+                        [],
+                        ("Take", TestNodes.Of("ParamInteger", ("param", "a"))),
+                        ("Take", TestNodes.Of("ParamInteger", ("param", "b")))
+                    )
+                )
+        );
+    }
+
+    [Fact]
+    public void InlineRowsNeedListNodes()
+    {
+        IReadNode item = TestNodes.With(
+            "RowItem",
+            [("alias", "tier")],
+            ("Expression", TestNodes.Of("LiteralString", ("value", "gold")))
+        );
+
+        AssertRejected(
+            "The 'Rows' relationship 0 of the SubqueryRows node leads to a RowItem node, "
+                + "not a List node.",
+            () =>
+                GraphMapping.ReadSubqueryRows(
+                    TestNodes.With("SubqueryRows", [("name", "tiers")], ("Rows", item))
+                )
+        );
+        AssertRejected(
+            "The List node has no 'alias' property.",
+            () =>
+                GraphMapping.ReadSubqueryRows(
+                    TestNodes.With(
+                        "SubqueryRows",
+                        [("name", "tiers")],
+                        (
+                            "Rows",
+                            TestNodes.With(
+                                GraphLabels.List,
+                                [],
+                                ("Rows", TestNodes.Of(GraphLabels.List))
+                            )
+                        )
+                    )
+                )
         );
     }
 
@@ -163,11 +207,27 @@ public sealed record MalformedGraphTests
                 )
         );
         AssertRejected(
+            "The SubqueryRows has no rows item",
+            () =>
+                GraphMapping.WriteSubqueryRows(
+                    new GraphBuilder(Id),
+                    new SubqueryRows("tiers", [null!])
+                )
+        );
+        AssertRejected(
+            "The SubqueryRows has no rows",
+            () =>
+                GraphMapping.WriteSubqueryRows(
+                    new GraphBuilder(Id),
+                    new SubqueryRows("tiers", null!)
+                )
+        );
+        AssertRejected(
             "The PaginationSkip holds no value.",
             () =>
                 GraphMapping.WritePagination(
                     new GraphBuilder(Id),
-                    new Pagination(default, new PaginationTake(1L))
+                    new Pagination(default(PaginationSkip), new PaginationTake(1L))
                 )
         );
     }
@@ -211,7 +271,14 @@ public sealed record MalformedGraphTests
     [Fact]
     public void EveryEnumRejectsAnUnknownValue()
     {
-        Type[] enums = [typeof(AggregateOver), typeof(JoinKind), typeof(SortDirection)];
+        Type[] enums =
+        [
+            typeof(AggregateOver),
+            typeof(JoinKind),
+            typeof(NormalizationForm),
+            typeof(RoundingMode),
+            typeof(SortDirection),
+        ];
         foreach (Type type in enums)
         {
             MethodInfo write = Mapping("Write" + type.Name);
