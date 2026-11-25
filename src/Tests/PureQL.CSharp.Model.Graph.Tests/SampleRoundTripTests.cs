@@ -7,7 +7,18 @@ public sealed record SampleRoundTripTests
     [Fact]
     public void EverySampleIsLoaded()
     {
-        Assert.Equal(151, QuerySamples.All.Count);
+        Assert.Equal(386, QuerySamples.All.Count);
+    }
+
+    [Fact]
+    public void TheNativeAotCheckListsEverySample()
+    {
+        Assert.Equal(
+            QuerySamples.All.Keys,
+            SampleQueries
+                .All.Select(sample => sample.Type.FullName)
+                .Order(StringComparer.Ordinal)
+        );
     }
 
     [Theory]
