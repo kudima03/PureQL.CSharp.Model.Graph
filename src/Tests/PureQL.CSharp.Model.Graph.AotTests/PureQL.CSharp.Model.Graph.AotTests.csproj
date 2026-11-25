@@ -16,8 +16,8 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="PureQL.CSharp.Model.Samples" Version="0.1.0-preview.3.0.0" />
-    <PackageReference Include="PureQL.CSharp.Model.Serialization" Version="0.1.0-preview.6.0.1" />
+    <PackageReference Include="PureQL.CSharp.Model.Samples" Version="0.1.0-preview.4.0.0" />
+    <PackageReference Include="PureQL.CSharp.Model.Serialization" Version="0.1.0-preview.7.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\PureQL.CSharp.Model.Graph\PureQL.CSharp.Model.Graph.csproj" />

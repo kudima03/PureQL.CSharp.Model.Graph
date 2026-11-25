@@ -228,6 +228,8 @@ internal static class ModelSamples
             _ when typeof(IParameter).IsAssignableFrom(type) => 1,
             _ when typeof(ILiteral).IsAssignableFrom(type) => 2,
             _ when typeof(ISubqueryColumn).IsAssignableFrom(type) => 3,
+            // "all" on both sides of a window is no window.
+            _ when type == typeof(All) => 5,
             _ => 4,
         };
     }

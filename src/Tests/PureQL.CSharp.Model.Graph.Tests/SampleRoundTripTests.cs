@@ -7,7 +7,7 @@ public sealed record SampleRoundTripTests
     [Fact]
     public void EverySampleIsLoaded()
     {
-        Assert.Equal(86, QuerySamples.All.Count);
+        Assert.Equal(151, QuerySamples.All.Count);
     }
 
     [Theory]
