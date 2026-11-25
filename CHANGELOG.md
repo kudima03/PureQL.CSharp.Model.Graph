@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0-preview.2.0.0] - 2026-11-25
+
 Follows `PureQL.CSharp.Model` `0.1.0-preview.15.0.0` (PureQL specification
 `0.1.0-preview.3.0.0`): every new record of the model is mapped (windows, combined queries,
 inline rows, recursive subqueries, `orderBy` by column, the new operators and their
