@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <!--
     A console application published with Native AOT, which proves that the library is
-    usable without reflection: CI publishes it and runs it over samples of every query
-    variant. Its code compiles under the trim and AOT analyzers with warnings as
+    usable without reflection: CI publishes it and runs it over every query of the
+    samples package. Its code compiles under the trim and AOT analyzers with warnings as
     errors, so it is also the documented usage checked by the compiler.
   -->
   <PropertyGroup>
@@ -16,13 +16,17 @@
     <InvariantGlobalization>true</InvariantGlobalization>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="PureQL.CSharp.Model.Samples" Version="0.1.0-preview.4.0.0" />
+    <PackageReference Include="PureQL.CSharp.Model.Samples" Version="0.1.0-preview.4.1.0" />
     <PackageReference Include="PureQL.CSharp.Model.Serialization" Version="0.1.0-preview.7.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\PureQL.CSharp.Model.Graph\PureQL.CSharp.Model.Graph.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile
+      Include="..\PureQL.CSharp.Model.Graph.Tests\SampleQueries.cs"
+      Link="SampleQueries.cs"
+    />
     <Compile Include="..\PureQL.CSharp.Model.Graph.Tests\StoredGraphs.cs" Link="StoredGraphs.cs" />
   </ItemGroup>
 </Project>
